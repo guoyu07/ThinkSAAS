@@ -22,10 +22,6 @@ switch($ts){
 
         $ad = intval($_POST['ad']);
 		
-		if($_POST['token'] != $_SESSION['token']) {
-			getJson('非法操作！',$js);
-		}
-		
 		/*禁止以下IP用户登陆或注册*/
 		$arrIp = aac('system')->antiIp();
 		if(in_array(getIp(),$arrIp)){
@@ -41,7 +37,25 @@ switch($ts){
 		$cktime = $_POST['cktime'];
 		
 		if($email=='' || $pwd=='') getJson('Email和密码都不能为空！',$js);
-		
+
+
+
+
+        if($GLOBALS['TS_SITE']['ucenter']){
+
+            require_once THINKAPP . '/ucenter/basic/conf/uc_config.php'; //引入应用的Uceter配置信息
+            require_once THINKAPP . '/ucenter/uc_client/client.php';
+            require_once THINKAPP . '/ucenter/basic/common/function.php';
+            $ucInfo = uc_user_login ( $email, $pwd, 2 );
+            if ($ucInfo[0] <= 0) {
+                getJson ( show_log_error ( $ucInfo[0] ), $js );
+            }
+
+        }
+
+
+
+
 		$isEmail = $new['user']->findCount('user',array(
 			'email'=>$email,
 		));
@@ -81,7 +95,7 @@ switch($ts){
 		//一天之内登录只算一次积分
 		if($userData['uptime'] < strtotime(date('Y-m-d'))){
 			//对积分进行处理
-			aac('user')->doScore($TS_URL['app'], $TS_URL['ac'], $TS_URL['ts']);
+			aac('user')->doScore($GLOBALS['TS_URL']['app'], $GLOBALS['TS_URL']['ac'], $GLOBALS['TS_URL']['ts']);
 		}
 		
 		//更新登录时间，用作自动登录

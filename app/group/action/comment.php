@@ -5,9 +5,6 @@ $userid = aac('user')->isLogin();
 switch($ts){
 	//添加评论
 	case "do":
-		if($_POST['token'] != $_SESSION['token']) {
-			tsNotice('非法操作！');
-		}
 		
 		$authcode = strtolower($_POST['authcode']);
 		
@@ -55,7 +52,7 @@ switch($ts){
 			));
 			
 			//对积分进行处理
-			aac('user')->doScore($TS_URL['app'], $TS_URL['ac'], $TS_URL['ts']);
+			aac('user')->doScore($GLOBALS['TS_URL']['app'], $GLOBALS['TS_URL']['ac'], $GLOBALS['TS_URL']['ts']);
 			
 			//发送系统消息(通知楼主有人回复他的帖子啦)			
 			$strTopic = $new['group']->find('group_topic',array(
@@ -73,14 +70,7 @@ switch($ts){
 			}
 			
 			
-			//QQ分享
-			$arrShare = array(
-				'content'=>t($content).'[ThinkSAAS社区]'.tsUrl('group','topic',array('id'=>$topicid)),
-			);
-			doAction('qq_share',$arrShare);
-			//微博分享
-			doAction('weibo_share',t($content).'[ThinkSAAS社区]'.tsUrl('group','topic',array('id'=>$topicid)));
-			
+
 			header("Location: ".tsUrl('group','topic',array('id'=>$topicid)));
 		}	
 	
@@ -118,9 +108,9 @@ switch($ts){
 			),array(
 				'count_comment'=>$count_comment,
 			));
-			
-			// 扣除用户相应的积分，删除评论扣2分
-			aac('user')->delScore($strComment['userid'],'删除帖子评论',2);
+
+            //处理积分
+            aac('user')->doScore($GLOBALS['TS_URL']['app'], $GLOBALS['TS_URL']['ac'], $GLOBALS['TS_URL']['ts'],$strComment['userid']);
 			
 			
 			

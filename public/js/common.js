@@ -1,5 +1,10 @@
 //提示
 function tsNotice(msg,title){
+
+    var chuangkou = '<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">关闭</span></button> <h4 class="modal-title" id="myModalLabel">提示</h4> </div> <div class="modal-body"> </div> <div class="modal-footer"> <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button> </div> </div> </div> </div>';
+
+    $('body').prepend(chuangkou);
+
 	if(title==''){
 		title = '提示';
 	}	
@@ -20,15 +25,20 @@ $(document).ready(function(){
 
 //签到
 function qianDao(){
-	$.post(siteUrl+'index.php?app=user&ac=signin',function(rs){
-	
-		if(rs==1){
-			tsNotice('签到成功！');
-		}else{
-			tsNotice('签到失败！');
-		}
-	
-	})
+    if(siteUid==0){
+        tsNotice('请登录后再签到！');
+        return false;
+    }else{
+        $.post(siteUrl+'index.php?app=user&ac=signin',function(rs){
+            if(rs==1){
+                $.get(siteUrl+'index.php?app=user&ac=signin&ts=ajax',function(rs){
+                    $("#qiandao").html(rs);
+                })
+            }else{
+                tsNotice('签到失败！');
+            }
+        })
+    }
 }
 
 /*!刷新验证码*/

@@ -45,9 +45,7 @@ switch ($ts) {
 	//编辑小组基本信息
 	case "edit_base":
 	
-		if($_POST['token'] != $_SESSION['token']) {
-			tsNotice('非法操作！');
-		}
+
 		$groupid = intval($_POST['groupid']);
 		
 		$strGroup = $new['group']->find('group',array(
@@ -139,9 +137,11 @@ switch ($ts) {
 			),array(
 				'isdelete'=>1,
 			));
-			
-			// 扣除用户相应的积分，删除帖子扣5分
-			aac('user')->delScore($strTopic['userid'],'删除帖子',5);
+
+
+			//处理积分
+            aac('user')->doScore($GLOBALS['TS_URL']['app'],$GLOBALS['TS_URL']['ac'],$GLOBALS['TS_URL']['ts'],$strTopic['userid']);
+
 			
 			tsNotice('你的删除帖子申请已经提交！');
 			
@@ -278,9 +278,7 @@ switch ($ts) {
 	//回复评论
 	case "recomment":
 	
-		if($_POST['token'] != $_SESSION['token']) {
-			echo 1;exit;
-		}
+
 		
 		$referid = intval($_POST['referid']);
 		$topicid = intval($_POST['topicid']);
